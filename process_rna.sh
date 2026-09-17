@@ -24,8 +24,8 @@ for SAMPLE in "${all_samples[@]}"; do
       echo "Running fastp..."
       fastp -i ${IN} \
             -o ${TRIMMED} \
-            --html results/${SAMPLE}_fastp.html \
-            --json results/${SAMPLE}_fastp.json \
+            --html $HOME/BIFX_572/temp2-Noah/results/${SAMPLE}_fastp.html \
+            --json $HOME/BIFX_572/temp2-Noah/results/${SAMPLE}_fastp.json \
             --thread 2
 
       # Run salmon quant on the trimmed reads
