@@ -1,9 +1,4 @@
 #!/bin/bash
-#SBATCH --job-name=run_multiqc
-#SBATCH --time=00:10:00
-#SBATCH --mem=2G
-#SBATCH --output=../logs/multiqc_%j.out
-#SBATCH --error=../logs/multiqc_%j.err
 
 echo "Aggregating reports with MultiQC..."
 
