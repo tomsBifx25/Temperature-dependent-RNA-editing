@@ -16,18 +16,18 @@ for SAMPLE in "${all_samples[@]}"; do
       IN1="/mnt/cluster_storage/data/ref/Birk2023/${SAMPLE}_1.fastq.gz"
       IN2="/mnt/cluster_storage/data/ref/Birk2023/${SAMPLE}_2.fastq.gz"
       
-      TRIMMED1="$HOME/BIFX_572/temp2-Noah/intermediate/${SAMPLE}_1_trimmed.fastq.gz"
-      TRIMMED2="$HOME/BIFX_572/temp2-Noah/intermediate/${SAMPLE}_2_trimmed.fastq.gz"
+      TRIMMED1="/mnt/cluster_storage/data/tjw8/572_project2/intermediate/${SAMPLE}_1_trimmed.fastq.gz"
+      TRIMMED2="/mnt/cluster_storage/data/tjw8/572_project2/intermediate/${SAMPLE}_2_trimmed.fastq.gz"
 
-      SALMON_OUT="$HOME/BIFX_572/temp2-Noah/results/${SAMPLE}_quant"
+      SALMON_OUT="/mnt/cluster_storage/data/tjw8/572_project2/results/${SAMPLE}_quant"
       INDEX="/mnt/cluster_storage/data/nwc1/Octopus_bimaculoides_CDS.fasta" # Make sure this is your index directory!
 
       # Run fastp with paired-end inputs (-i and -I) and outputs (-o and -O)
       echo "Running fastp..."
       fastp -i ${IN1} -I ${IN2} \
             -o ${TRIMMED1} -O ${TRIMMED2} \
-            --html $HOME/BIFX_572/temp2-Noah/results/${SAMPLE}_fastp.html \
-            --json $HOME/BIFX_572/temp2-Noah/results/${SAMPLE}_fastp.json \
+            --html /mnt/cluster_storage/data/tjw8/572_project2/results/${SAMPLE}_fastp.html \
+            --json /mnt/cluster_storage/data/tjw8/572_project2/results/${SAMPLE}_fastp.json \
             --thread 2
 
       # Run salmon quant with paired-end inputs (-1 and -2)
