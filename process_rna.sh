@@ -1,11 +1,5 @@
 #!/bin/bash
 
-#SBATCH --job-name=Temp-depen-RNA-edit
-#SBATCH --output=slurm-%j.out
-#SBATCH --cpus-per-task=2
-#SBATCH --mem=8G
-#SBATCH --time=2:00:00
-
 # run this in the main project directory with the `samples.txt` corresponding to the sample you want to run
 # for example, to run ERR458494, that should be the only sampe in the file
 
