@@ -3,7 +3,11 @@
 # run this in the main project directory with the `samples.txt` corresponding to the sample you want to run
 # for example, to run ERR458494, that should be the only sampe in the file
 
-# ./scripts/process_rna.sh
+# to run; bash process_rna.sh
+
+# Make sure this is your index directory
+INDEX="/mnt/cluster_storage/data/ref/Octopus_bimaculoides_index"
+
 
 # Get an array of all samples to be processed
 mapfile -t all_samples < "samples.txt"
@@ -20,7 +24,6 @@ for SAMPLE in "${all_samples[@]}"; do
       TRIMMED2="/mnt/cluster_storage/data/tjw8/572_project2/intermediate/${SAMPLE}_2_trimmed.fastq.gz"
 
       SALMON_OUT="/mnt/cluster_storage/data/tjw8/572_project2/results/${SAMPLE}_quant"
-      INDEX="/mnt/cluster_storage/data/nwc1/Octopus_bimaculoides_CDS.fasta" # Make sure this is your index directory!
 
       # Run fastp with paired-end inputs (-i and -I) and outputs (-o and -O)
       echo "Running fastp..."
