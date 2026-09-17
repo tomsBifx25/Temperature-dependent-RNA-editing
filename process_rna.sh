@@ -12,26 +12,29 @@ for SAMPLE in "${all_samples[@]}"; do
 
       echo "Processing sample: ${SAMPLE}"
 
-      # Define input and output paths based on directory structure
-      IN="/mnt/cluster_storage/data/ref/Birk2023/${SAMPLE}.fastq.gz"
-
-      TRIMMED="$HOME/BIFX_572/temp2-Noah/intermediate/${SAMPLE}_trimmed.fastq.gz"
+      # Define input paths for BOTH paired-end files
+      IN1="/mnt/cluster_storage/data/ref/Birk2023/${SAMPLE}_1.fastq.gz"
+      IN2="/mnt/cluster_storage/data/ref/Birk2023/${SAMPLE}_2.fastq.gz"
+      
+      TRIMMED1="$HOME/BIFX_572/temp2-Noah/intermediate/${SAMPLE}_1_trimmed.fastq.gz"
+      TRIMMED2="$HOME/BIFX_572/temp2-Noah/intermediate/${SAMPLE}_2_trimmed.fastq.gz"
 
       SALMON_OUT="$HOME/BIFX_572/temp2-Noah/results/${SAMPLE}_quant"
-      INDEX="/mnt/cluster_storage/data/nwc1/Octopus_bimaculoides_CDS.fasta"
+      INDEX="/mnt/cluster_storage/data/nwc1/Octopus_bimaculoides_CDS.fasta" # Make sure this is your index directory!
 
-      # Run fastp for QC and trimming
+      # Run fastp with paired-end inputs (-i and -I) and outputs (-o and -O)
       echo "Running fastp..."
-      fastp -i ${IN} \
-            -o ${TRIMMED} \
+      fastp -i ${IN1} -I ${IN2} \
+            -o ${TRIMMED1} -O ${TRIMMED2} \
             --html $HOME/BIFX_572/temp2-Noah/results/${SAMPLE}_fastp.html \
             --json $HOME/BIFX_572/temp2-Noah/results/${SAMPLE}_fastp.json \
             --thread 2
 
-      # Run salmon quant on the trimmed reads
+      # Run salmon quant with paired-end inputs (-1 and -2)
       echo "Running salmon quant..."
       salmon quant -i ${INDEX} -l A \
-                   -r ${TRIMMED} \
+                   -1 ${TRIMMED1} \
+                   -2 ${TRIMMED2} \
                    -p 2 --validateMappings -o ${SALMON_OUT}
 
       echo "Sample ${SAMPLE} complete!"
