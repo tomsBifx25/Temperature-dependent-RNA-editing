@@ -1,0 +1,58 @@
+---
+title: Temperature-dependent RNA editing in Octopus
+date: 2026-09-17
+author: Thomas Walsh (original Birk et al. 2023)
+format: gfm
+execute: 
+  echo: false
+  warning: false
+---
+
+[![](https://zenodo.org/badge/DOI/10.1016/j.cell.2023.05.004.svg)](https://doi.org/10.1016/j.cell.2023.05.004)
+
+This repository is a fork of the respository published with ["Temperature-dependent RNA editing in octopus extensively recodes the neural proteome" by Birk et al.] from containing the code and original data behind "Temperature-dependent RNA editing in octopus extensively recodes the neural proteome" by Birk et al. Most figures in the paper can be reproduced here.
+
+
+Octopus drawings are reproduced, with permission, from Roger Hall.
+
+## Setup
+
+```{r Setup}
+#| include: false
+# load libraries
+library(Biostrings)
+library(dplyr)
+library(colorspace)
+library(ggplot2)
+
+root <- here::here()
+```
+
+
+## Figures
+
+Figure 1 
+
+```{r Fig1B}
+#| fig-cap: "Figure 1B: A large proportion of the *O. bimaculoides* editome exhibits increased editing at colder temperature (blue), but only 789 sites show a significant increase in warm samples (red)."
+
+source(file.path(root, 'scripts', 'make_Fig1B.R'))
+```
+
+
+```{r Fig1C}
+#| fig-cap: "Figure 1C: Cold-induced increases in editing levels were both more common and higher in magnitude than warm-induced increases. See also Figure S1. Octopus drawings are reproduced, with permission, from Roger Hall."
+
+source(file.path(root, 'scripts', 'make_Fig1C.R'))
+```
+
+Figure S1 also goes with these figures
+
+
+```{r FigS1}
+
+source(file.path(root, 'scripts', 'make_Fig1C.R'))
+cowplot::plot_grid()
+```
+
+![Figure S1 Water temperature of aquarium tanks preceding and during long-term temperature incubation experiments, related to Figures 1 and 2. Each vertical line represents 1 day.](scripts/bigfigs/S1.png)

@@ -24,6 +24,7 @@ find_recode = function(df, transcript_col, es_col, exome){
 library(readxl)
 library(dplyr)
 
+root <- here::here()
 
 Obimac_CDS = seqinr::read.fasta('/Users/matthewbirk/Documents/WDs/SnapGene/Exomes/Octopus_bimaculoides_CDS.fasta', seqtype = 'DNA', as.string = TRUE) # data from http://octopus.unit.oist.jp/OCTDATA/BASIC/Metazome/Obimaculoides_280_cds.fa.gz
 
@@ -189,4 +190,4 @@ all_temp_recod = rbind(warm_recod, cold_recod)
 # dplyr::arrange(subset(all_temp_recod, Protein_full_name != 'NA' & EL_diff > 0.25), desc(EL_diff))
 #dplyr::arrange(subset(all_temp_recod, Protein_full_name != 'NA' & `Uhuman uniprot ID` %in% conserved$uniprot_name & EL_diff > 0.2), desc(EL_diff))
 
-save.image('/Users/matthewbirk/Documents/WDs/R/Rosenthal/Octo_temp/data_objects.Rdata')
+save.image(file.path('Data', 'data_objects'))

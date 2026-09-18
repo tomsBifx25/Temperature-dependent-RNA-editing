@@ -1,6 +1,10 @@
+
+if(!exists('root'))
+	root <- here::here()
+
 samples = list.files('make_FigS1/Run 1', full.names = TRUE)
 layout(matrix(1:12, ncol = 3, byrow = TRUE))
-for(i in samples){
+for(i in 1:length(samples)){
 	log = read.csv(i, skip = 1)
 	log$date = lubridate::mdy_hms(log$Date.Time..GMT.04.00)
 	log = log[log$date <= lubridate::ymd_hms('2015-08-03 16:00:00'), ]
@@ -8,8 +12,9 @@ for(i in samples){
 	
 	title = paste('Experiment_1', gsub('.csv', '', basename(i)))
 	
-	plot(log$date, log$temp, type = 'l', main = title, xlab = 'Date', ylab = 'Temperature (°C)', ylim = c(12, 24))
-	
+	gs1[i] <- ggplot2(log, aes(date, temp))
+
+
 	tmp = range(log[log$temp < 14, 'date'])
 	print(difftime(tmp[2], tmp[1]))
 	print(mean(log[log$temp < 14, 'temp']))
@@ -32,22 +37,7 @@ for(i in samples){
 	print(mean(log[log$Value < 14, 'Value']))
 }
 
-dev.copy2pdf(file = 'figS1.pdf', height = 10, width = 12)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#dev.copy2pdf(file = 'figS1.pdf', height = 10, width = 12)
 
 
 

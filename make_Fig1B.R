@@ -1,11 +1,17 @@
-library(ggplot2); library(colorspace); library(dplyr); library(Biostrings)
+# Load necessary libraries
+require(ggplot2)
+require(colorspace)
+require(dplyr)
+require(Biostrings)
 
 
 theme_set(theme_bw())
 
+if(!)exists(
+	root <- here::here()
+)
+
 load('data_objects.Rdata')
-
-
 
 # Pie chart ---------------------------------------------------------------
 
@@ -16,13 +22,13 @@ inter2 = c(inter1, rep('No effect', times = nrow(temp_insensitive)))
 inter3 = data.frame(type = inter2)
 
 
-
 tmp1 = as.data.frame(table(inter3))
 tmp1 = tmp1 %>% 
 	dplyr::arrange(desc(tmp1)) %>%
 	mutate(prop = Freq / sum(tmp1$Freq) * 100) %>%
 	mutate(ypos = cumsum(prop) - 0.5 * prop)
-ggplot(tmp1, aes(x = '', y = prop, fill = type)) +
+
+g1b <- ggplot(tmp1, aes(x = '', y = prop, fill = type)) +
 	geom_bar(stat = 'identity', color = 'white') +
 	geom_label(aes(y = ypos, label = Freq), color = 'white') +
 	coord_polar('y', start = 0) +
@@ -30,5 +36,5 @@ ggplot(tmp1, aes(x = '', y = prop, fill = type)) +
 	theme_void() +
 	theme(legend.position = 'none')
 
-ggsave('fig1B.pdf', width = 2.75, height = 2.75)
-
+#ggsave('fig1B.pdf', width = 2.75, height = 2.75)
+g1b
