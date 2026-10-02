@@ -1,0 +1,226 @@
+---
+title: "Differential transcript expression for Temp..."
+author: "Thomas Walsh"
+date: "October 1, 2026"
+format: docx
+---
+
+
+## called DE but really looking at transcripts
+
+```{r}
+#| include: false
+
+library(SummarizedExperiment)
+library(DESeq2)
+library(vsn) # BioC
+library(ExploreModelMatrix) # BioC
+library(dplyr)
+library(ggplot2)
+library(ComplexHeatmap) # BioC
+library(RColorBrewer)
+library(hexbin)
+library(iSEE) # BioC
+library(cowplot)
+library(apeglm) #bioC
+library(patchwork)
+
+theme_set(theme_cowplot())
+
+
+```
+
+
+## Load data
+
+```{r}
+#| code-fold: true
+root <- here::here()
+
+load(file.path(root, 'results', 'DESeqDataSet.RData'))
+
+group_cols <- c(warm = 'orange3', cold = 'blue3')
+
+```
+
+
+## EDA
+
+# filter low count transcripts
+
+```{r}
+#| code-fold: true
+# filer out low counts
+dds <- dds[rowSums(assay(dds, 'counts')) > 5]
+
+```
+
+
+## Library size
+
+```{r}
+#| fig-cap: "Comparison of library size (in millions)"
+#| code-fold: true
+
+# look at difference in library size
+dds$libSize <- colSums(assay(dds))
+
+colData(dds) |>
+  as.data.frame() |>
+  ggplot(aes(SRAid, libSize / 1e6, fill = group)) +
+  geom_bar(stat = 'identity') +
+  scale_color_manual(values = group_cols) +
+  labs(x = '',
+       y = 'Library Size (millions)') +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),)
+
+```
+
+
+## Normalization
+
+
+```{r}
+#| fig-cap: "Normalizations"
+#| code-fold: true
+
+dds <- estimateSizeFactors(dds)
+
+### view normalization factors by sample
+data.frame(libSize = colSums(assay(dds)),
+           normFactor = colSums(normalizationFactors(dds)),
+           group = dds$Sample) |>
+  ggplot(aes(libSize, normFactor, color = group)) +
+  geom_point() +
+  scale_color_manual(values = group_cols) +
+  labs(x = "Library size", 
+       y = "Normalization factor",
+       color = "")
+
+```
+
+## Variance stabl trans
+
+```{r}
+#| fig-cap: "Mean and SD plot before and after variance stabilization transformation"
+#| code-fold: true
+
+png('sdplots.png', width = 7, height = 4, units = 'in', dpi = 300)
+par(mfrow = c(1,2))
+
+# check mean/sd independence assumption
+meanSdPlot(assay(dds), ranks = FALSE)
+
+# apply VST
+vsd <- vst(dds)
+meanSdPlot(assay(vsd), ranks = FALSE)
+dev.off()
+
+```
+
+### Cluster Visualization
+
+```{r}
+#| fig-cap: "Clustering of warm vs cold groups"
+#| code-fold: true
+dst <- dist(t(assay(vsd)))
+colors <- colorRampPalette(brewer.pal(9, "Blues"))(255)
+ComplexHeatmap::Heatmap(
+    as.matrix(dst), 
+    col = colors,
+    name = "Euclidean\ndistance",
+    cluster_rows = hclust(dst),
+    cluster_columns = hclust(dst),
+    show_column_names = FALSE,
+    show_row_names = FALSE,
+    bottom_annotation = columnAnnotation(
+        sample = vsd$group,
+        col = list(sample = group_cols)))
+```
+
+## PCA visualization
+```{r}
+#| fig-cap: "PCA plot"
+#| code-fold: true
+pcaData <- DESeq2::plotPCA(vsd, intgroup = "Group",
+                           returnData = TRUE)
+
+percentVar <- round(100 * attr(pcaData, "percentVar"))
+
+ggplot(pcaData, aes(x = PC1, y = PC2, color = group)) +
+    geom_point() +
+    theme_minimal() +
+    xlab(paste0("PC1: ", percentVar[1], "% variance")) +
+    ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+    coord_fixed() +
+    scale_color_manual(values = group_cols)
+```
+
+## Dispersion modeling
+
+```{r}
+#| fig-cap: "Dispersion modeling"
+#| code-fold: true
+dds <- estimateDispersions(dds)
+plotDispEsts(dds)
+
+```
+
+## DE statistics
+
+```{r}
+#| fig-cap: "Differential transcript espresstion statistics"
+#| code-fold: true
+dds <- nbinomWaldTest(dds)
+
+cold_warm <- results(dds, contrast = c("Group", 'cold', 'warm'))
+summary(cold_warm)
+
+head(cold_warm[order(cold_warm$pvalue),], n = 10)
+head(cold_warm[order(abs(cold_warm$log2FoldChange), decreasing = TRUE),])
+```
+
+## MA plot and shrinkage
+
+```{r}
+#| fig-cap: "MA plot with and without shrinkage"
+#| code-fold: true
+graw <- plotMA(cold_warm)
+
+#                                 colnames(coef(dds))
+wshrinkage <- lfcShrink(dds, coef = "Sample_cold_vs_warm", res = cold_warm)
+
+gwshrinkage <- plotMA(wshrinkage) # may need bioC pack, 'apeglim'
+
+graw + gwshrinkage
+```
+
+## Heatmap of top DE genes
+
+```{r}
+#| fig-cap: "Heatmap of top 20 differentially expressed transcripts, with warm and cold samples highlighted at the top of the map."
+#| code-fold: true
+
+# define number 'n' to alter number of genes
+n <- 20
+
+genes <- cold_warm[order(cold_warm$pvalue), ] |>
+         head(n) |>
+         rownames()
+heatmapData <- assay(vsd)[genes, ]
+
+# Scale counts for visualization
+heatmapData <- t(scale(t(heatmapData)))
+
+# Add annotation
+heatmapColAnnot <- HeatmapAnnotation(Group = colData(vsd)[, "group"],
+                                    col = list(Group = group_cols))
+
+# Plot as heatmap
+ComplexHeatmap::Heatmap(heatmapData,
+                        top_annotation = heatmapColAnnot,
+                        cluster_rows = TRUE,
+                        cluster_columns = TRUE,
+                        show_column_names = FALSE)
+```

@@ -1,0 +1,10 @@
+*.fasta
+Data/raw
+data
+intermediate
+ref
+*.html
+*._files/
+*.docx
+results
+nohup.out
